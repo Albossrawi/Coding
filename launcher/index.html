@@ -1,0 +1,74 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>My Launcher</title>
+  <style>
+    :root {
+      --bg: #0f1115;
+      --fg: #f2f4f8;
+      --muted: #8a92a6;
+      --focus: #4d9cff;
+      --card: #1b1f27;
+    }
+    * { box-sizing: border-box; }
+    html, body {
+      margin: 0;
+      height: 100%;
+      background: var(--bg);
+      color: var(--fg);
+      font-family: "LG Smart UI", "Helvetica Neue", Arial, sans-serif;
+      overflow: hidden;
+    }
+    header {
+      display: flex;
+      justify-content: space-between;
+      align-items: baseline;
+      padding: 48px 72px 16px;
+    }
+    header h1 { font-size: 40px; font-weight: 600; margin: 0; }
+    #clock { font-size: 28px; color: var(--muted); }
+    #grid {
+      display: grid;
+      grid-template-columns: repeat(5, 1fr);
+      gap: 28px;
+      padding: 16px 72px;
+    }
+    .tile {
+      background: var(--card);
+      border-radius: 16px;
+      padding: 24px;
+      height: 200px;
+      display: flex;
+      flex-direction: column;
+      justify-content: flex-end;
+      border: 4px solid transparent;
+      transition: border-color 0.12s, transform 0.12s;
+    }
+    .tile img {
+      width: 96px;
+      height: 96px;
+      object-fit: contain;
+      margin-bottom: auto;
+    }
+    .tile span { font-size: 26px; }
+    .tile.focused {
+      border-color: var(--focus);
+      transform: scale(1.04);
+    }
+    #empty { padding: 72px; color: var(--muted); font-size: 24px; display: none; }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>Home</h1>
+    <div id="clock"></div>
+  </header>
+  <div id="grid"></div>
+  <div id="empty">No apps to show. Check apps.json.</div>
+  <script src="webOSTVjs-1.2.2/webOSTV.js"></script>
+  <script src="webOSTVjs-1.2.2/webOSTV-dev.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>

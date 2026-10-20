@@ -1,0 +1,14 @@
+{
+  "hidden": [
+    "com.webos.app.browser",
+    "com.webos.app.sharing",
+    "com.webos.app.screenshare"
+  ],
+  "pinned": [
+    "netflix",
+    "youtube.leanback.v4",
+    "com.webos.app.livetv",
+    "com.webos.app.hdmi1",
+    "com.webos.app.hdmi2"
+  ]
+}

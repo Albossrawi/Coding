@@ -1,0 +1,15 @@
+{
+  "id": "com.example.launcher",
+  "version": "1.0.0",
+  "vendor": "Example",
+  "type": "web",
+  "main": "index.html",
+  "title": "My Launcher",
+  "icon": "icon.png",
+  "largeIcon": "icon.png",
+  "bgImage": "",
+  "uiRevision": 2,
+  "resolution": "1920x1080",
+  "supportInfo": "Custom launcher for webOS TV",
+  "requiredPermissions": ["time.query"]
+}
