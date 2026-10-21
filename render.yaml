@@ -3,6 +3,7 @@ services:
   - type: web
     name: iptv-player
     runtime: node
+    plan: free
     rootDir: iptv
     buildCommand: npm install
     startCommand: npm start
