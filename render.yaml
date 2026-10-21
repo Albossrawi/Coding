@@ -1,4 +1,4 @@
-# One-click deploy: in Render choose New > Blueprint and select this repository.
+# One-click deploy: in Render choose New > Blueprint, select this repository and the add-iptv-web-player branch.
 services:
   - type: web
     name: iptv-player
