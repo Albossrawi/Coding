@@ -204,6 +204,12 @@ function createServer(options) {
 module.exports = { createServer, rewritePlaylist, isAuthorized, isLoopback };
 
 if (require.main === module) {
+  // The proxy uses the global fetch() and AbortController, which need Node 18+.
+  if (typeof fetch !== "function") {
+    console.error("Node.js 18 or newer is required; this is " + process.version + ".");
+    process.exit(1);
+  }
+
   const host = process.env.HOST || "127.0.0.1";
   const port = Number(process.env.PORT) || 8080;
   const password = process.env.IPTV_PASSWORD || "";
