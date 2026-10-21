@@ -1,0 +1,71 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>IPTV Player</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <header class="topbar">
+    <h1>IPTV Player</h1>
+    <span id="status" class="status">Not loaded</span>
+  </header>
+
+  <main class="layout">
+    <section class="panel sources">
+      <div class="tabs" role="tablist">
+        <button type="button" class="tab active" data-tab="m3u" role="tab" aria-selected="true">M3U link</button>
+        <button type="button" class="tab" data-tab="xtream" role="tab" aria-selected="false">Login</button>
+      </div>
+
+      <form id="m3u-form" class="form">
+        <label>
+          Playlist URL
+          <input id="m3u-url" type="url" required placeholder="http://provider.example/get.php?username=…&amp;password=…&amp;type=m3u_plus">
+        </label>
+        <button type="submit">Load channels</button>
+      </form>
+
+      <form id="xtream-form" class="form" hidden>
+        <label>
+          Server
+          <input id="xtream-server" type="text" required placeholder="http://provider.example:8080">
+        </label>
+        <label>
+          Username
+          <input id="xtream-user" type="text" required autocomplete="username">
+        </label>
+        <label>
+          Password
+          <input id="xtream-pass" type="password" required autocomplete="current-password">
+        </label>
+        <button type="submit">Log in and load</button>
+        <p class="hint">Only the server and username are remembered on this device. The password is not stored.</p>
+      </form>
+
+      <p id="error" class="error" role="alert" hidden></p>
+      <p id="account" class="account" hidden></p>
+
+      <div class="channel-tools">
+        <input id="search" type="search" placeholder="Search channels" aria-label="Search channels">
+        <select id="group" aria-label="Channel group">
+          <option value="">All groups</option>
+        </select>
+      </div>
+      <p id="channel-count" class="muted"></p>
+      <ul id="channels" class="channels"></ul>
+    </section>
+
+    <section class="panel player-panel">
+      <video id="video" controls playsinline></video>
+      <p id="now-playing" class="now-playing">Load a playlist to start watching.</p>
+      <p id="player-error" class="error" role="alert" hidden></p>
+    </section>
+  </main>
+
+  <script src="https://cdn.jsdelivr.net/npm/hls.js@1.5.7/dist/hls.min.js"></script>
+  <script src="lib/playlist.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>

@@ -1,0 +1,15 @@
+{
+  "name": "iptv-player",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Browser IPTV player for M3U playlists and Xtream Codes logins",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "test": "node --test test/playlist.test.js"
+  },
+  "engines": {
+    "node": ">=18"
+  },
+  "license": "UNLICENSED"
+}
