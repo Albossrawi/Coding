@@ -7,9 +7,10 @@
 //   node server.js                 -> http://127.0.0.1:8080
 //   PORT=9000 HOST=0.0.0.0 node server.js
 //
-// Only bind to a public interface if you understand that anyone who can
-// reach it can use this server to fetch arbitrary http(s) URLs.
+// Binding to any non-local HOST requires IPTV_PASSWORD, because anyone who can
+// reach the server could otherwise use /proxy to fetch arbitrary http(s) URLs.
 
+const crypto = require("node:crypto");
 const http = require("node:http");
 const fs = require("node:fs");
 const path = require("node:path");
@@ -157,8 +158,38 @@ function serveStatic(res, pathname) {
   });
 }
 
-function createServer() {
+// Basic auth with any username and the password from IPTV_PASSWORD. The
+// browser asks once and then sends the same credentials to /proxy.
+function isAuthorized(req, password) {
+  if (!password) {
+    return true;
+  }
+  const match = /^Basic (.+)$/i.exec(req.headers.authorization || "");
+  if (!match) {
+    return false;
+  }
+  const supplied = Buffer.from(match[1], "base64").toString("utf8");
+  const separator = supplied.indexOf(":");
+  const given = Buffer.from(separator === -1 ? "" : supplied.slice(separator + 1));
+  const expected = Buffer.from(password);
+  return given.length === expected.length && crypto.timingSafeEqual(given, expected);
+}
+
+function isLoopback(host) {
+  return host === "127.0.0.1" || host === "localhost" || host === "::1";
+}
+
+function createServer(options) {
+  const password = options && "password" in options ? options.password : process.env.IPTV_PASSWORD || "";
+
   return http.createServer(function (req, res) {
+    if (!isAuthorized(req, password)) {
+      res.writeHead(401, {
+        "WWW-Authenticate": 'Basic realm="IPTV Player", charset="UTF-8"',
+        "Content-Type": "text/plain; charset=utf-8"
+      });
+      return res.end("Password required.");
+    }
     if (req.method !== "GET" && req.method !== "HEAD") {
       return sendText(res, 405, "Method not allowed");
     }
@@ -170,11 +201,19 @@ function createServer() {
   });
 }
 
-module.exports = { createServer, rewritePlaylist };
+module.exports = { createServer, rewritePlaylist, isAuthorized, isLoopback };
 
 if (require.main === module) {
   const host = process.env.HOST || "127.0.0.1";
   const port = Number(process.env.PORT) || 8080;
+  const password = process.env.IPTV_PASSWORD || "";
+
+  // Refuse to expose the open proxy on a network interface without a password.
+  if (!isLoopback(host) && !password) {
+    console.error("Set IPTV_PASSWORD before listening on HOST=" + host + ".");
+    process.exit(1);
+  }
+
   createServer().listen(port, host, function () {
     console.log("IPTV player running at http://" + host + ":" + port);
   });

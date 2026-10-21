@@ -1,0 +1,13 @@
+# One-click deploy: in Render choose New > Blueprint and select this repository.
+services:
+  - type: web
+    name: iptv-player
+    runtime: node
+    rootDir: iptv
+    buildCommand: npm install
+    startCommand: npm start
+    envVars:
+      - key: HOST
+        value: 0.0.0.0
+      - key: IPTV_PASSWORD
+        generateValue: true

@@ -5,7 +5,7 @@ const assert = require("node:assert/strict");
 const http = require("node:http");
 
 const Playlist = require("../lib/playlist.js");
-const { createServer, rewritePlaylist } = require("../server.js");
+const { createServer, rewritePlaylist, isAuthorized, isLoopback } = require("../server.js");
 
 test("parseM3U reads attributes, quoted commas and skips non-http entries", () => {
   const text = [
@@ -157,5 +157,44 @@ test("proxy rewrites playlists, streams segments, and rejects bad targets", asyn
   } finally {
     app.close();
     provider.close();
+  }
+});
+
+test("isAuthorized accepts only the configured password via Basic auth", () => {
+  const basic = (value) => ({ headers: { authorization: "Basic " + Buffer.from(value).toString("base64") } });
+
+  assert.equal(isAuthorized({ headers: {} }, ""), true);
+  assert.equal(isAuthorized({ headers: {} }, "s3cret"), false);
+  assert.equal(isAuthorized(basic("anyone:s3cret"), "s3cret"), true);
+  assert.equal(isAuthorized(basic(":s3cret"), "s3cret"), true);
+  assert.equal(isAuthorized(basic("anyone:wrong!"), "s3cret"), false);
+  assert.equal(isAuthorized(basic("anyone:s3cre"), "s3cret"), false);
+  assert.equal(isAuthorized({ headers: { authorization: "Bearer s3cret" } }, "s3cret"), false);
+});
+
+test("isLoopback identifies local-only hosts", () => {
+  assert.equal(isLoopback("127.0.0.1"), true);
+  assert.equal(isLoopback("localhost"), true);
+  assert.equal(isLoopback("0.0.0.0"), false);
+});
+
+test("password-protected server rejects anonymous requests before proxying", async () => {
+  const app = createServer({ password: "s3cret" });
+  await new Promise((resolve) => app.listen(0, "127.0.0.1", resolve));
+  const origin = `http://127.0.0.1:${app.address().port}`;
+  const auth = "Basic " + Buffer.from("u:s3cret").toString("base64");
+
+  try {
+    const anonymous = await fetch(`${origin}/proxy?url=${encodeURIComponent("http://example.invalid/")}`);
+    assert.equal(anonymous.status, 401);
+    assert.match(anonymous.headers.get("www-authenticate"), /^Basic /);
+
+    const page = await fetch(`${origin}/`);
+    assert.equal(page.status, 401);
+
+    const authed = await fetch(`${origin}/`, { headers: { Authorization: auth } });
+    assert.equal(authed.status, 200);
+  } finally {
+    app.close();
   }
 });
